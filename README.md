@@ -36,11 +36,11 @@ A couple notes about editing the script
 4. If you see that message the script is running and conversions should start
 
 # Powershell Setup
-The easiest way to do this is to allow this script to run by using this command in powershell running as admin:
+Open powershell as the user that will be running the script and then run the following command:
 
-    Set-ExecutionPolicy Unrestricted
+    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 
-Select Yes to all when prompted
+Select Yes or Yes to all.  This will allow scripts to run as the current user.
 
 for more information on Execution Policy view this page: <https://technet.microsoft.com/library/hh847748.aspx>
 
