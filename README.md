@@ -1,5 +1,5 @@
 # VideoFileResizer
-Powershell Script to automate conversion of video files a specified size or larger to smaller mkv or mp4 files.
+Powershell Script to automate conversion of video files of a specified size or larger to smaller mkv or mp4 files using handbreakcli or ffmpeg.
 
 # Pre Reqs
 1. Must have HandBreakCLI or ffmpeg installed.  
