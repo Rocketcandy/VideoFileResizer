@@ -120,7 +120,7 @@ $b=0
 $LargeTVEpisodes = Get-ChildItem -Path $TvShowDir -Recurse -File | Where-Object {$_.Length -gt $TvShowSize} | ForEach-Object {$b++; If ($b -eq 1){Write-Host -NoNewLine "`rFound $b file so far..."} Else{Write-Host -NoNewLine "`rFound $b files so far..." -foregroundcolor green};$_}
 $LargeMovies = Get-ChildItem -Path $MovieDir -Recurse -File | Where-Object {$_.Length -gt $MovieSize} | ForEach-Object {$b++; If ($b -eq 1){Write-Host -NoNewLine "`rFound $b file so far..."} Else{Write-Host -NoNewLine "`rFound $b files so far..." -foregroundcolor green};$_}
 $LargeFiles = $LargeTVEpisodes + $LargeMovies | Sort-Object Length -Descending
-$num = $fileList | measure
+$num = $LargeFiles | measure
 $fileCount = $num.count
 
 # Convert the file using -NEW at the end
