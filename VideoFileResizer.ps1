@@ -105,28 +105,36 @@ foreach($file in $CompletedTable){
 # Output that we are finding file
 Write-Host "Finding Movie files over $($MovieSize/1GB)GB in $MovieDir and Episodes over $($TvShowSize/1GB)GB in $TvShowDir be patient..." -ForegroundColor Gray
 
+# Set variables so we can get number of files while scanning
+$b = 0
+$i = 0
 
 # Get all items in both folders that are greater than the specified size and sort them largest to smallest
-$b=0
-$i = 0
 $LargeTVEpisodes = Get-ChildItem -Path $TvShowDir -Recurse -File | Where-Object {$_.Length -gt $TvShowSize} | ForEach-Object {$b++; If ($b -eq 1){Write-Host -NoNewLine "`rFound $b file so far..."} Else{Write-Host -NoNewLine "`rFound $b files so far..." -foregroundcolor green};$_}
 $LargeMovies = Get-ChildItem -Path $MovieDir -Recurse -File | Where-Object {$_.Length -gt $MovieSize} | ForEach-Object {$b++; If ($b -eq 1){Write-Host -NoNewLine "`rFound $b file so far..."} Else{Write-Host -NoNewLine "`rFound $b files so far..." -foregroundcolor green};$_}
 $LargeFiles = $LargeTVEpisodes + $LargeMovies | Sort-Object Length -Descending
-$num = $LargeFiles | measure
-$fileCount = $num.count
-$progress = ($i / $fileCount) * 100
-$progress = [Math]::Round($progress,2)
+
+# If no large files are found then write that out
 If($LargeFiles -eq $null){
     Write-Host "No files over $($MovieSize/1GB)GB in $MovieDir and no Episodes over $($TvShowSize/1GB)GB in $TvShowDir found.  Exiting"
     exit
 }
 
+# Get total file count so we can display progress
+num = $LargeFiles | measure
+$fileCount = $num.count
+$progress = ($i / $fileCount) * 100
+$progress = [Math]::Round($progress,2)
+
 # Convert the file using -NEW at the end
 foreach($File in $LargeFiles){
+	# Incriment $i so we can update progress
 	$i++;
+	
+	# Build the name of the file as we want it to be after the conversion and rename
 	$FinalName = "$($File.Directory)\$($File.BaseName).$Format"
-    # Check the Hash table we created from the Conversions Completed spreadsheet.  If it exists skip that file
-    if(-not($HashTable.ContainsKey("$FinalName"))){
+    	# Check the Hash table we created from the Conversions Completed spreadsheet.  If it exists skip that file
+    	if(-not($HashTable.ContainsKey("$FinalName"))){
 		# File name + "-NEW.$Format" we want it to be an $FileFormat file and we don't want to overwrite the file we are reading from if it is already a .$FileFormat
 		$OutputFile = "$($File.Directory)\$($File.BaseName)-NEW.$Format"
 		
