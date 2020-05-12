@@ -4,7 +4,8 @@
     $TvShowSize = 1GB,
     $MovieSize = 2GB,
     $Format = "mp4",
-    $Program = "ffmpeg"
+    $Program = "ffmpeg",
+	$Logging = "Console" #Console,PerFile,SingleLog  Console drops all info to console window, perfile creates a new log for each file, singlefile will create a new file for each day.
 )
 # Specify directory for handbreak and ffmpeg
 $HandBreakDir = "C:\Users\$env:USERNAME\Downloads\HandBrakeCLI-1.3.2-win-x86_64"
@@ -54,7 +55,7 @@ if($Program -eq "ffmpeg"){
 	$ffmpegOptions += "-crf" #CRF flag
 	$ffmpegOptions += "20" #CRF value (Higher is less quality)
 	$ffmpegOptions += "-c:a" #Audio codec flag
-	$ffmpegOptions += "aac" #Specify aac for audio codec 
+	$ffmpegOptions += "aac" #Specify aac for audio codec
 }
 
 # Create Variable for storing the current directory
@@ -62,22 +63,15 @@ if (!$WorkingDir){
     $WorkingDir = (Resolve-Path .\).Path
 }
 # Create the Conversion Completed Spreadsheet if it does not exist
-$ConversionCompleted = "$WorkingDir\ConversionsCompleted.csv"
-If(-not(Test-Path $ConversionCompleted)){
+$ConversionCSV = "$WorkingDir\ConversionsCompleted.csv"
+If(-not(Test-Path $ConversionCSV)){
     $headers = "File Name", "Completed Date"
     $psObject = New-Object psobject
     foreach($header in $headers){
         Add-Member -InputObject $psobject -MemberType noteproperty -Name $header -Value ""
     }
-    $psObject | Export-Csv $ConversionCompleted -NoTypeInformation
-    $ConversionCompleted = Resolve-Path -Path $ConversionCompleted
-}
-
-# Create the Logs directory if it does not exist
-$LogFileDir = "$WorkingDir\Logs"
-if(-not(Test-Path($LogFileDir))){
-    New-Item -ItemType Directory -Force -Path $LogFileDir | Out-Null
-    $LogFileDir = Resolve-Path -Path $LogFileDir
+    $psObject | Export-Csv $ConversionCSV -NoTypeInformation
+    $ConversionCSV = Resolve-Path -Path $ConversionCSV
 }
 
 # Check to see if the exacuteable exists
@@ -102,7 +96,7 @@ if(-not(Test-Path("$TvShowDir"))){
 }
 
 #Create Hash table to check against before starting conversions.  This will prevent converting items that have already been converted (This spreadsheet updates automatically)
-$CompletedTable = Import-Csv -Path $ConversionCompleted
+$CompletedTable = Import-Csv -Path $ConversionCSV
 $HashTable=@{}
 foreach($file in $CompletedTable){
     $HashTable[$file."File Name"]=$file."Completed Date"
@@ -119,6 +113,10 @@ Write-Host "Finding Movie files over $($MovieSize/1GB)GB in $MovieDir and Episod
 $LargeTVEpisodes = Get-ChildItem -Path $TvShowDir -Recurse -File | Where-Object {$_.Length -gt $TvShowSize}
 $LargeMovies = Get-ChildItem -Path $MovieDir -Recurse -File | Where-Object {$_.Length -gt $MovieSize}
 $LargeFiles = $LargeTVEpisodes + $LargeMovies | Sort-Object Length -Descending
+If($LargeFiles -eq $null){
+    Write-Host "No files over $($MovieSize/1GB)GB in $MovieDir and no Episodes over $($TvShowSize/1GB)GB in $TvShowDir found.  Exiting"
+    exit
+}
 
 # Convert the file using -NEW at the end
 foreach($File in $LargeFiles){
@@ -137,38 +135,84 @@ foreach($File in $LargeFiles){
             Start-Sleep -s 10
             $p = Get-Process -Name $Executable
             $p.PriorityClass = [System.Diagnostics.ProcessPriorityClass]::BelowNormal
-        } 
-		# Build Log file name
-		$LogFileName = $File.BaseName -replace '[[\]]',''
+        } | Out-Null
+		#region Logging
+		if($Logging -ne "Console") {
+			# Create the Logs directory if it does not exist
+			$LogFileDir = "$WorkingDir\Logs"
+			if(!(Test-Path($LogFileDir))){
+				New-Item -ItemType Directory -Force -Path $LogFileDir | Out-Null
+			}
+        }
+		If($Logging -eq "PerFile"){
+			# Build Log file name
+			$LogFileName = $File.BaseName -replace '[[\]]',''
+            $LogPath = "$LogFileDir\$LogFileName.txt"
+			if($Program -eq "ffmpeg"){
+				$ffmpegOptions += "-nostats" #Specify not to send stats to the log file (Logs will get huge without this but you can comment out for testing)
+			}
+		}
+		If($Logging -eq "SingleLog"){
+			# Get date info
+			$Date = Get-Date
+			if(!(Test-Path -path "$LogFileDir\$($Date.Year)\$($Date.Month)\$($Date.Day)")){
+				New-Item -path "$LogFileDir\$($Date.Year)\$($Date.Month)\$($Date.Day)" -type Directory | Out-Null
+			}
+			# Build Log file name
+			$LogFileName = "Conversions"
+			$LogPath = "$LogFileDir\$($Date.Year)\$($Date.Month)\$($Date.Day)\$LogFileName.txt"
+			if($Program -eq "ffmpeg"){
+				$ffmpegOptions += "-nostats" #Specify not to send stats to the log file (Logs will get huge without this but you can comment out for testing)
+			}
+		}
+		#endregion
+		
 		# Input file
 		$InputFile = $File.FullName
-
+		
+		# Write that we are starting the conversion
+        $StartingFileSize = $File.Length/1GB
+        Write-Host "Starting conversion on $InputFile it is $([math]::Round($StartingFileSize,2))GB in size before conversion" -ForegroundColor Cyan
+		
 		if($Program -eq "HandBreak"){
-			& $HandBreakDir\HandBrakeCLI.exe -i "$InputFile" -o "$OutputFile" $HandbreakOptions 2> "$LogFileDir\$LogFileName.txt"
+			if($Logging -eq "Console"){
+				& $HandBreakDir\HandBrakeCLI.exe -i "$InputFile" -o "$OutputFile" $HandbreakOptions
+			}
+			else{
+				& $HandBreakDir\HandBrakeCLI.exe -i "$InputFile" -o "$OutputFile" $HandbreakOptions 2> $LogPath
+			}
 		}
 		if($Program -eq "ffmpeg"){
-			& $ffmpegBinDir\ffmpeg.exe -i "$InputFile" $ffmpegOptions "$OutputFile" 2> "$LogFileDir\$LogFileName.txt"
+			if($Logging -eq "Console"){
+				& $ffmpegBinDir\ffmpeg.exe -i "$InputFile" $ffmpegOptions "$OutputFile"
+			}
+			else{
+				& $ffmpegBinDir\ffmpeg.exe -i "$InputFile" $ffmpegOptions "$OutputFile" 2> $LogPath
+			}
 		}
 		# Check to make sure that the output file actuall exists so that if there was a conversion error we don't delete the original
-        if( Test-Path $OutputFile ){
-            Remove-Item $InputFile -Force
-            Rename-Item $OutputFile $FinalName
-            Write-Host "Finished converting $FinalName" -ForegroundColor Green
-            $EndingFile = Get-Item $FinalName | Select-Object Length
-            $EndingFileSize = $EndingFile.Length/1GB
-            Write-Host "Ending file size is $([math]::Round($EndingFileSize,2))GB so, space saved is $([math]::Round($StartingFileSize-$EndingFileSize,2))GB" -ForegroundColor Green
-            # Add the completed file to the completed csv file so we don't convert it again later
-            $csvFileName = "$FinalName"
-            $csvCompletedDate = Get-Date -UFormat "%x - %I:%M %p"
-            $hash = @{
-                "File Name" =  $csvFileName
-                "Completed Date" = $csvCompletedDate
-            }
-            $newRow = New-Object PsObject -Property $hash
-            Export-Csv $ConversionCompleted -inputobject $newrow -append -Force
-        }
+        if($Error -eq $null){
+			if( Test-Path $OutputFile ){
+				Remove-Item $InputFile -Force
+				Rename-Item $OutputFile $FinalName
+				Write-Host "Finished converting $FinalName" -ForegroundColor Green
+				$EndingFile = Get-Item $FinalName | Select-Object Length
+				$EndingFileSize = $EndingFile.Length/1GB
+				Write-Host "Ending file size is $([math]::Round($EndingFileSize,2))GB so, space saved is $([math]::Round($StartingFileSize-$EndingFileSize,2))GB" -ForegroundColor Green
+				# Add the completed file to the completed csv file so we don't convert it again later
+				$csvFileName = "$FinalName"
+				$csvCompletedDate = Get-Date -UFormat "%x - %I:%M %p"
+				$hash = @{
+					"File Name" =  $csvFileName
+					"Completed Date" = $csvCompletedDate
+				}
+				$newRow = New-Object PsObject -Property $hash
+				Export-Csv $ConversionCSV -inputobject $newrow -append -Force
+			}
+		}
         # If file not found write that the conversion failed.
-        elseif (-not(Test-Path $OutputFile)){
+        elseif ((-not(Test-Path $OutputFile)) -Or ($Error -ne $null)){
+			$Error.Clear()
             Write-Host "Failed to convert $InputFile" -ForegroundColor Red
         }
 	}
