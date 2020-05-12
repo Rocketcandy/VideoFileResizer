@@ -13,7 +13,6 @@ A couple notes about editing the script
 
 1. All paths can be either a network path.  Example: "\\\\my.server\share\files"
 2. Or a local path.  Example: "C:\Users\Public\Videos"
-3. Just make sure that whatever path you use it stays inside the quotes.
  
 # What does the script actually do?
 
