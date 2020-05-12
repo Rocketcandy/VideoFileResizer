@@ -102,9 +102,6 @@ foreach($file in $CompletedTable){
     $HashTable[$file."File Name"]=$file."Completed Date"
 }
 
-
-#####  Start looking for files and converting files happens after here #####
-
 # Output that we are finding file
 Write-Host "Finding Movie files over $($MovieSize/1GB)GB in $MovieDir and Episodes over $($TvShowSize/1GB)GB in $TvShowDir be patient..." -ForegroundColor Gray
 
@@ -133,6 +130,7 @@ foreach($File in $LargeFiles){
         if(Test-Path $OutputFile){
             Remove-Item $OutputFile -Force
         }
+
         # Change the CPU priorety of $Executable to below Normal in 10 seconds so that the conversion has started
         Start-Job -ScriptBlock {
             Start-Sleep -s 10
@@ -194,8 +192,8 @@ foreach($File in $LargeFiles){
 			}
 		}
 		# Check to make sure that the output file actuall exists so that if there was a conversion error we don't delete the original
-        if($Error -eq $null){
-			if( Test-Path $OutputFile ){
+        if($Error.Count -eq 0){
+			if(Test-Path $OutputFile){
 				Remove-Item $InputFile -Force
 				Rename-Item $OutputFile $FinalName
 				Write-Host "Finished converting $FinalName" -ForegroundColor Green
@@ -214,7 +212,7 @@ foreach($File in $LargeFiles){
 			}
 		}
         # If file not found write that the conversion failed.
-        elseif ((-not(Test-Path $OutputFile)) -Or ($Error -ne $null)){
+        elseif ((!(Test-Path $OutputFile)) -Or ($Error.Count -gt 0)){
 			$Error.Clear()
             Write-Host "Failed to convert $InputFile" -ForegroundColor Red
         }
