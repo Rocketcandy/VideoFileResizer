@@ -234,6 +234,6 @@ foreach($File in $LargeFiles){
     # If file exists in Conversions Completed Spreadsheet write that we are skipping the file because it was already converted
     elseif($HashTable.ContainsKey("$FinalName")){
         $CompletedTime = $HashTable.Item("$Finalname")
-        Write-Host "Skipping $InputFile because it was already converted on $CompletedTime." -ForegroundColor DarkGreen
+        Write-Host "Skipping $FinalName because it was already converted on $CompletedTime." -ForegroundColor DarkGreen
     }
 }
