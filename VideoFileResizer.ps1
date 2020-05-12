@@ -30,7 +30,7 @@ if($Program -eq "handbreak"){
 	$HandbreakOptions += "--encoder-level" #Profile version to use for encoding flag
 	$HandbreakOptions += "4.1" #Encode profile value
 	$HandbreakOptions += "-q" #CFR flag
-	$HandbreakOptions += "20" #CFR value
+	$HandbreakOptions += "27" #CFR value (Higher is less quality)
 	$HandbreakOptions += "-E" #Audio codec flag
 	$HandbreakOptions += "aac" #Specify AAC to use as the audio codec
 	$HandbreakOptions += "--audio-copy-mask" #Permitted audio codecs for copying flag
@@ -53,7 +53,7 @@ if($Program -eq "ffmpeg"){
 	$ffmpegOptions += "-preset" #Preset flag
 	$ffmpegOptions += "fast" #Use fast preset
 	$ffmpegOptions += "-crf" #CRF flag
-	$ffmpegOptions += "20" #CRF value (Higher is less quality)
+	$ffmpegOptions += "27" #CRF value (Higher is less quality)
 	$ffmpegOptions += "-c:a" #Audio codec flag
 	$ffmpegOptions += "aac" #Specify aac for audio codec
 }
