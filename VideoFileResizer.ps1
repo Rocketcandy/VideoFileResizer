@@ -120,10 +120,10 @@ If($LargeFiles -eq $null){
 
 # Convert the file using -NEW at the end
 foreach($File in $LargeFiles){
-	$FinalName = "$($File.Directory)\$($File.BaseName).$FileFormat"
+	$FinalName = "$($File.Directory)\$($File.BaseName).$Format"
     # Check the Hash table we created from the Conversions Completed spreadsheet.  If it exists skip that file
     if(-not($HashTable.ContainsKey("$FinalName"))){
-		# File name + "-NEW.$FileFormat" we want it to be an $FileFormat file and we don't want to overwrite the file we are reading from if it is already a .$FileFormat
+		# File name + "-NEW.$Format" we want it to be an $FileFormat file and we don't want to overwrite the file we are reading from if it is already a .$FileFormat
 		$OutputFile = "$($File.Directory)\$($File.BaseName)-NEW.$Format"
 		
 		# Check that the Output file does not already exist, if it does delete it so the new conversions works as intended.
