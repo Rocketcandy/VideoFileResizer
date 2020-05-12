@@ -110,9 +110,12 @@ Write-Host "Finding Movie files over $($MovieSize/1GB)GB in $MovieDir and Episod
 
 
 # Get all items in both folders that are greater than the specified size and sort them largest to smallest
-$LargeTVEpisodes = Get-ChildItem -Path $TvShowDir -Recurse -File | Where-Object {$_.Length -gt $TvShowSize}
-$LargeMovies = Get-ChildItem -Path $MovieDir -Recurse -File | Where-Object {$_.Length -gt $MovieSize}
+$b=0
+$LargeTVEpisodes = Get-ChildItem -Path $TvShowDir -Recurse -File | Where-Object {$_.Length -gt $TvShowSize} | ForEach-Object {$b++; If ($b -eq 1){Write-Host -NoNewLine "`rFound $b file so far..."} Else{Write-Host -NoNewLine "`rFound $b files so far..." -foregroundcolor green};$_}
+$LargeMovies = Get-ChildItem -Path $MovieDir -Recurse -File | Where-Object {$_.Length -gt $MovieSize} | ForEach-Object {$b++; If ($b -eq 1){Write-Host -NoNewLine "`rFound $b file so far..."} Else{Write-Host -NoNewLine "`rFound $b files so far..." -foregroundcolor green};$_}
 $LargeFiles = $LargeTVEpisodes + $LargeMovies | Sort-Object Length -Descending
+$num = $LargeFiles | measure
+$fileCount = $num.count
 If($LargeFiles -eq $null){
     Write-Host "No files over $($MovieSize/1GB)GB in $MovieDir and no Episodes over $($TvShowSize/1GB)GB in $TvShowDir found.  Exiting"
     exit
