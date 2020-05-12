@@ -121,7 +121,7 @@ If($LargeFiles -eq $null){
 }
 
 # Get total file count so we can display progress
-num = $LargeFiles | measure
+$num = $LargeFiles | measure
 $fileCount = $num.count
 $progress = ($i / $fileCount) * 100
 $progress = [Math]::Round($progress,2)
