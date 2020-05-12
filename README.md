@@ -11,8 +11,8 @@ Powershell Script to automate conversion of video files of a specified size or l
 
 A couple notes about editing the script
 
-1. All paths can be either a network path.  Example: "\\\\my.server\share\files"
-2. Or a local path.  Example: "C:\Users\Public\Videos"
+1. All paths can be either a network path.  Example: "\\\\my.server\share\files" or a local path.  Example: "C:\Users\Public\Videos"
+2. All of the flags can be changed, and you can add new ones just copy the existing format.
  
 # What does the script actually do?
 
