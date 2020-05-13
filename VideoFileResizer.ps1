@@ -56,6 +56,7 @@ if($Program -eq "ffmpeg"){
 	$ffmpegOptions += "27" #CRF value (Higher is less quality)
 	$ffmpegOptions += "-c:a" #Audio codec flag
 	$ffmpegOptions += "aac" #Specify aac for audio codec
+	$ffmpegOptions += "-hide_banner" #Hide top banner on  each encode
 }
 
 # Create Variable for storing the current directory
