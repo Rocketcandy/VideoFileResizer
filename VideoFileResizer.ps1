@@ -124,7 +124,6 @@ If($LargeFiles -eq $null){
 $num = $LargeFiles | measure
 $fileCount = $num.count
 
-
 # Convert the file using -NEW at the end
 foreach($File in $LargeFiles){
 	# Incriment $i so we can update progress
@@ -183,6 +182,8 @@ foreach($File in $LargeFiles){
 		$InputFile = $File.FullName
 		
 		# Write that we are starting the conversion
+		$progress = ($i / $fileCount) * 100
+		$progress = [Math]::Round($progress,2)
 		Write-Host "File $i of $fileCount - Total queue $progress%"
         $StartingFileSize = $File.Length/1GB
         Write-Host "Starting conversion on $InputFile it is $([math]::Round($StartingFileSize,2))GB in size before conversion" -ForegroundColor Cyan
@@ -211,8 +212,6 @@ foreach($File in $LargeFiles){
 				Write-Host "Finished converting $FinalName" -ForegroundColor Green
 				$EndingFile = Get-Item $FinalName | Select-Object Length
 				$EndingFileSize = $EndingFile.Length/1GB
-				$progress = ($i / $fileCount) * 100
-				$progress = [Math]::Round($progress,2)
 				Write-Host "Ending file size is $([math]::Round($EndingFileSize,2))GB so, space saved is $([math]::Round($StartingFileSize-$EndingFileSize,2))GB" -ForegroundColor Green
 				# Add the completed file to the completed csv file so we don't convert it again later
 				$csvFileName = "$FinalName"
