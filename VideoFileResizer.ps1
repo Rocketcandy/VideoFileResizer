@@ -56,6 +56,7 @@ if($Program -eq "ffmpeg"){
 	$ffmpegOptions += "27" #CRF value (Higher is less quality)
 	$ffmpegOptions += "-c:a" #Audio codec flag
 	$ffmpegOptions += "aac" #Specify aac for audio codec
+	$ffmpegOptions += "-hide_banner" #Hide top banner on  each encode
 }
 
 # Create Variable for storing the current directory
@@ -123,8 +124,6 @@ If($LargeFiles -eq $null){
 # Get total file count so we can display progress
 $num = $LargeFiles | measure
 $fileCount = $num.count
-$progress = ($i / $fileCount) * 100
-$progress = [Math]::Round($progress,2)
 
 # Convert the file using -NEW at the end
 foreach($File in $LargeFiles){
@@ -184,6 +183,8 @@ foreach($File in $LargeFiles){
 		$InputFile = $File.FullName
 		
 		# Write that we are starting the conversion
+		$progress = ($i / $fileCount) * 100
+		$progress = [Math]::Round($progress,2)
 		Write-Host "File $i of $fileCount - Total queue $progress%"
         $StartingFileSize = $File.Length/1GB
         Write-Host "Starting conversion on $InputFile it is $([math]::Round($StartingFileSize,2))GB in size before conversion" -ForegroundColor Cyan
