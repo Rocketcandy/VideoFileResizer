@@ -1,9 +1,9 @@
 # VideoFileResizer
-Powershell Script to automate conversion of video files of a specified size or larger to smaller mkv or mp4 files using handbreakcli or ffmpeg.
+Powershell Script to automate conversion of video files of a specified size or larger to smaller mkv or mp4 files using HandBrakecli or ffmpeg.
 
 # Pre Reqs
-1. Must have HandBreakCLI or ffmpeg installed.  
-  HandbreakCLI: <https://handbrake.fr/downloads2.php>
+1. Must have HandBrakeCLI or ffmpeg installed.  
+  HandBrakeCLI: <https://handbrake.fr/downloads2.php>
   ffmpeg: <https://ffmpeg.zeranoe.com/builds/>
 2. Must have powershell 5.1 or higher installed.  You can install from here: https://www.microsoft.com/en-us/download/details.aspx?id=54616
 3. Must have powershell setup to allow this script.  See [Powershell Setup](https://github.com/Rocketcandy/VideoFileResizer#powershell-setup)
@@ -15,7 +15,7 @@ A couple notes about editing the script
 1. All paths can be either a network path.  Example: "\\\\my.server\share\files" or a local path.  Example: "C:\Users\Public\Videos"
 2. All of the flags can be changed, and you can add new ones just copy the existing format.
 
-Handbreak flags: https://handbrake.fr/docs/en/latest/cli/command-line-reference.html \
+HandBrake flags: https://handbrake.fr/docs/en/latest/cli/command-line-reference.html \
 ffmpeg flags: https://ffmpeg.org/ffmpeg.html#toc-Options
  
 # What does the script actually do?

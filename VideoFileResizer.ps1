@@ -1,45 +1,45 @@
 ﻿Param(
-    $TvShowDir = "C:\temp\Shows",
-    $MovieDir = "C:\temp\Movies",
+    $TvShowDir = "C:\Temp\Shows",
+    $MovieDir = "C:\Temp\Movies",
     $TvShowSize = 1GB,
-    $MovieSize = 2B,
+    $MovieSize = 2GB,
     $Format = "mp4",
-    $Program = "ffmpeg", #ffmpeg or handbreak
+    $Program = "ffmpeg", #ffmpeg or HandBrake
 	$Logging = "Console" #Console,PerFile,SingleLog  Console drops all info to console window, perfile creates a new log for each file, singlefile will create a new file for each day.
 )
-# Specify directory for handbreak and ffmpeg
-$HandBreakDir = "C:\Users\$env:USERNAME\Downloads\HandBrakeCLI-1.3.2-win-x86_64"
+# Specify directory for HandBrake and ffmpeg
+$HandBrakeDir = "C:\Users\$env:USERNAME\Downloads\HandBrakeCLI-1.3.2-win-x86_64"
 $ffmpegBinDir = "C:\Users\$env:USERNAME\Downloads\ffmpeg\bin"
 
 # Set the conversion string we want to use for both programs
-if($Program -eq "handbreak"){	
-	# Handbreak options, add or remove if you don't like them.  Full list: https://handbrake.fr/docs/en/latest/cli/command-line-reference.html
+if($Program -eq "HandBrake"){	
+	# HandBrake options, add or remove if you don't like them.  Full list: https://handbrake.fr/docs/en/latest/cli/command-line-reference.html
 	$Executable = "HandBrakeCLI.exe" #Program executalbe file name.
-	$ExecutableDir = $HandBreakDir
-	$HandbreakOptions = @()
-	$HandbreakOptions += "-f" #Format flag
-	$HandbreakOptions += $Format #Format value (MKV or MP4 specified earlier)
-	$HandbreakOptions += "-a" #Audio channel flag
-	$HandbreakOptions += "1,2,3,4,5,6,7,8,9,10" #Audio channels to scan
-	$HandbreakOptions += "-e" #Output video codec flag
-	$HandbreakOptions += "x264" #Output using x264
-	$HandbreakOptions += "--encoder-preset" #Encode speed preset flag
-	$HandbreakOptions += "slow" #Encode speed preset
-	$HandbreakOptions += "--encoder-profile" #Encode quality preset flag
-	$HandbreakOptions += "high" #Encode quality preset
-	$HandbreakOptions += "--encoder-level" #Profile version to use for encoding flag
-	$HandbreakOptions += "4.1" #Encode profile value
-	$HandbreakOptions += "-q" #CFR flag
-	$HandbreakOptions += "27" #CFR value (Higher is less quality)
-	$HandbreakOptions += "-E" #Audio codec flag
-	$HandbreakOptions += "aac" #Specify AAC to use as the audio codec
-	$HandbreakOptions += "--audio-copy-mask" #Permitted audio codecs for copying flag
-	$HandbreakOptions += "aac" #Set only AAC as allowed for copying
-	$HandbreakOptions += "--verbose=1" #Logging level
-	$HandbreakOptions += "--decomb" #Deinterlace video flag
-	$HandbreakOptions += "--loose-anamorphic" #Try and keep source aspect ratio
-	$HandbreakOptions += "--modulus" #Modulus flag
-	$HandbreakOptions += "2" #Modulus value
+	$ExecutableDir = $HandBrakeDir
+	$HandBrakeOptions = @()
+	$HandBrakeOptions += "-f" #Format flag
+	$HandBrakeOptions += $Format #Format value (MKV or MP4 specified earlier)
+	$HandBrakeOptions += "-a" #Audio channel flag
+	$HandBrakeOptions += "1,2,3,4,5,6,7,8,9,10" #Audio channels to scan
+	$HandBrakeOptions += "-e" #Output video codec flag
+	$HandBrakeOptions += "x264" #Output using x264
+	$HandBrakeOptions += "--encoder-preset" #Encode speed preset flag
+	$HandBrakeOptions += "slow" #Encode speed preset
+	$HandBrakeOptions += "--encoder-profile" #Encode quality preset flag
+	$HandBrakeOptions += "high" #Encode quality preset
+	$HandBrakeOptions += "--encoder-level" #Profile version to use for encoding flag
+	$HandBrakeOptions += "4.1" #Encode profile value
+	$HandBrakeOptions += "-q" #CFR flag
+	$HandBrakeOptions += "27" #CFR value (Higher is less quality)
+	$HandBrakeOptions += "-E" #Audio codec flag
+	$HandBrakeOptions += "aac" #Specify AAC to use as the audio codec
+	$HandBrakeOptions += "--audio-copy-mask" #Permitted audio codecs for copying flag
+	$HandBrakeOptions += "aac" #Set only AAC as allowed for copying
+	$HandBrakeOptions += "--verbose=1" #Logging level
+	$HandBrakeOptions += "--decomb" #Deinterlace video flag
+	$HandBrakeOptions += "--loose-anamorphic" #Try and keep source aspect ratio
+	$HandBrakeOptions += "--modulus" #Modulus flag
+	$HandBrakeOptions += "2" #Modulus value
 }
 if($Program -eq "ffmpeg"){
 	$Executable = "ffmpeg.exe" #Program executalbe file name.
@@ -107,7 +107,7 @@ $LargeFiles = $LargeTVEpisodes + $LargeMovies | Sort-Object Length -Descending
 
 # If no large files are found then write that out
 If($LargeFiles -eq $null){
-    Write-Host "No files over $($MovieSize/1GB)GB in $MovieDir and no Episodes over $($TvShowSize/1GB)GB in $TvShowDir found.  Exiting"
+    Write-Host "No Movies over $($MovieSize/1GB)GB in $MovieDir and no Episodes over $($TvShowSize/1GB)GB in $TvShowDir found.  Exiting"
     exit
 }
 
@@ -198,12 +198,12 @@ foreach($File in $LargeFiles){
         $StartingFileSize = $File.Length/1GB
         Write-Host "Starting conversion on $InputFile it is $([math]::Round($StartingFileSize,2))GB in size before conversion" -ForegroundColor Cyan
 		
-		if($Program -eq "HandBreak"){
+		if($Program -eq "HandBrake"){
 			if($Logging -eq "Console"){
-				& $HandBreakDir\HandBrakeCLI.exe -i "$InputFile" -o "$OutputFile" $HandbreakOptions
+				& $HandBrakeDir\HandBrakeCLI.exe -i "$InputFile" -o "$OutputFile" $HandBrakeOptions
 			}
 			else{
-				& $HandBreakDir\HandBrakeCLI.exe -i "$InputFile" -o "$OutputFile" $HandbreakOptions 2> $LogPath
+				& $HandBrakeDir\HandBrakeCLI.exe -i "$InputFile" -o "$OutputFile" $HandBrakeOptions 2> $LogPath
 			}
 		}
 		if($Program -eq "ffmpeg"){
