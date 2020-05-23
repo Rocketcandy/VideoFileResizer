@@ -5,9 +5,10 @@ Powershell Script to automate conversion of video files of a specified size or l
 1. Must have HandBreakCLI or ffmpeg installed.  
   HandbreakCLI: <https://handbrake.fr/downloads2.php>
   ffmpeg: <https://ffmpeg.zeranoe.com/builds/>
-2. Must have powershell setup to allow this script.  See [Powershell Setup](https://github.com/Rocketcandy/VideoFileResizer#powershell-setup)
-3. Powershell is a requirement to run the script.  I have only tested it on Windows, but if you can get it to work on MacOS or Linux more power to you!
-4. Edit the script and change the first section of the script to match your needs
+2. Must have powershell 5.1 or higher installed.  You can install from here: https://www.microsoft.com/en-us/download/details.aspx?id=54616
+3. Must have powershell setup to allow this script.  See [Powershell Setup](https://github.com/Rocketcandy/VideoFileResizer#powershell-setup)
+4. Powershell is a requirement to run the script.  I have only tested it on Windows, but if you can get it to work on MacOS or Linux more power to you!
+5. Edit the script and change the first section of the script to match your needs
 
 A couple notes about editing the script
 
