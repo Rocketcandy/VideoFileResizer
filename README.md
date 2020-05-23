@@ -14,6 +14,9 @@ A couple notes about editing the script
 
 1. All paths can be either a network path.  Example: "\\\\my.server\share\files" or a local path.  Example: "C:\Users\Public\Videos"
 2. All of the flags can be changed, and you can add new ones just copy the existing format.
+
+Handbreak flags: https://handbrake.fr/docs/en/latest/cli/command-line-reference.html
+ffmpeg flags: https://ffmpeg.org/ffmpeg.html#toc-Options
  
 # What does the script actually do?
 
