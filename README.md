@@ -16,7 +16,6 @@ A couple notes about editing the script
 2. All of the flags can be changed, and you can add new ones just copy the existing format.
 
 Handbreak flags: https://handbrake.fr/docs/en/latest/cli/command-line-reference.html
-
 ffmpeg flags: https://ffmpeg.org/ffmpeg.html#toc-Options
  
 # What does the script actually do?
