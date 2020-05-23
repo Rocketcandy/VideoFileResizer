@@ -2,9 +2,9 @@
     $TvShowDir = "C:\temp\Shows",
     $MovieDir = "C:\temp\Movies",
     $TvShowSize = 1GB,
-    $MovieSize = 2GB,
+    $MovieSize = 2B,
     $Format = "mp4",
-    $Program = "ffmpeg",
+    $Program = "ffmpeg", #ffmpeg or handbreak
 	$Logging = "Console" #Console,PerFile,SingleLog  Console drops all info to console window, perfile creates a new log for each file, singlefile will create a new file for each day.
 )
 # Specify directory for handbreak and ffmpeg
@@ -59,25 +59,22 @@ if($Program -eq "ffmpeg"){
 	$ffmpegOptions += "-hide_banner" #Hide top banner on  each encode
 }
 
+# Validate we are on powershell 5.1 or higher
+$Version = "$($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)"
+if($Version -lt 5.1){
+    Write-Host "Powershell version is $Version please upgrade to 5.1 from here: https://www.microsoft.com/en-us/download/details.aspx?id=54616 Quitting" -ForegroundColor Red
+    Read-Host "Press Enter to exit..."
+    exit
+}
+
 # Create Variable for storing the current directory
 if (!$WorkingDir){
     $WorkingDir = (Resolve-Path .\).Path
 }
-# Create the Conversion Completed Spreadsheet if it does not exist
-$ConversionCSV = "$WorkingDir\ConversionsCompleted.csv"
-If(-not(Test-Path $ConversionCSV)){
-    $headers = "File Name", "Completed Date"
-    $psObject = New-Object psobject
-    foreach($header in $headers){
-        Add-Member -InputObject $psobject -MemberType noteproperty -Name $header -Value ""
-    }
-    $psObject | Export-Csv $ConversionCSV -NoTypeInformation
-    $ConversionCSV = Resolve-Path -Path $ConversionCSV
-}
 
 # Check to see if the exacuteable exists
 if(-not(Test-Path("$ExecutableDir\$exacuteable"))){
-    Write-Host "$exacuteable not found in $ExecutableDir Please make sure that $programs is installed.  Quitting" -ForegroundColor Red
+    Write-Host "$exacuteable not found in $ExecutableDir Please make sure that $program is installed.  Quitting" -ForegroundColor Red
     Read-Host "Press Enter to exit..."
     exit
 }
@@ -94,13 +91,6 @@ if(-not(Test-Path("$TvShowDir"))){
     Write-Host "Tv Show directory: $TvShowDir not found.  Please make sure the path is correct.  Quitting" -ForegroundColor Red
     Read-Host "Press Enter to exit..."
     exit
-}
-
-#Create Hash table to check against before starting conversions.  This will prevent converting items that have already been converted (This spreadsheet updates automatically)
-$CompletedTable = Import-Csv -Path $ConversionCSV
-$HashTable=@{}
-foreach($file in $CompletedTable){
-    $HashTable[$file."File Name"]=$file."Completed Date"
 }
 
 # Output that we are finding file
@@ -124,6 +114,25 @@ If($LargeFiles -eq $null){
 # Get total file count so we can display progress
 $num = $LargeFiles | measure
 $fileCount = $num.count
+
+# Create the Conversion Completed Spreadsheet if it does not exist
+$ConversionCSV = "$WorkingDir\ConversionsCompleted.csv"
+If(-not(Test-Path $ConversionCSV)){
+    $headers = "File Name", "Completed Date"
+    $psObject = New-Object psobject
+    foreach($header in $headers){
+        Add-Member -InputObject $psobject -MemberType noteproperty -Name $header -Value ""
+    }
+    $psObject | Export-Csv $ConversionCSV -NoTypeInformation
+    $ConversionCSV = Resolve-Path -Path $ConversionCSV
+}
+
+#Create Hash table to check against before starting conversions.  This will prevent converting items that have already been converted (This spreadsheet updates automatically)
+$CompletedTable = Import-Csv -Path $ConversionCSV
+$HashTable=@{}
+foreach($file in $CompletedTable){
+    $HashTable[$file."File Name"]=$file."Completed Date"
+}
 
 # Convert the file using -NEW at the end
 foreach($File in $LargeFiles){
